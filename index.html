@@ -15,6 +15,9 @@
 
   <!-- Babel Standalone (JSX без сборки) -->
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <!-- FileSaver.js — надёжное скачивание файлов с правильными именами -->
+  <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
 </head>
 <body class="bg-slate-50">
 
@@ -409,16 +412,10 @@
       return `prizma_interview_${code}_${d}.${ext}`;
     }
 
-    // Базовый download helper — data URI вместо blob (надёжное имя файла)
+    // Базовый download helper — FileSaver.js (гарантированно правильное имя файла)
     function downloadFile(filename, content, mimeType) {
-      const dataUrl = 'data:' + mimeType + ';charset=utf-8,' + encodeURIComponent(content);
-      const a    = document.createElement('a');
-      a.href     = dataUrl;
-      a.download = filename;
-      a.style.display = 'none';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
+      const blob = new Blob([content], { type: mimeType + ';charset=utf-8' });
+      window.saveAs(blob, filename);
     }
 
     // ─────────────────────────────────────────────
