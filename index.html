@@ -35,105 +35,207 @@
     // ЧАНК 2: СТАТИЧЕСКИЕ ДАННЫЕ (вне компонента)
     // ─────────────────────────────────────────────
 
-    const STORAGE_KEY = 'prizma_custdev_interview_v2';
+    // ─────────────────────────────────────────────
+    // КОНФИГУРАЦИЯ ТРЕКОВ
+    // ─────────────────────────────────────────────
 
-    const surveyData = {
-      project: 'ПРИЗМА',
-      researchTrack: 'Ученые ищут ученого',
-      objective:
-        'Понять, как исследователи сегодня находят специалистов из других областей, где именно ломается этот процесс и насколько ценным был бы сервис подбора и первичного соединения научных компетенций.',
-      consentScript:
-        'Можно я запишу разговор на аудио, чтобы ничего не потерять и потом корректно зафиксировать ответы? Запись нужна только для внутреннего анализа интервью.',
-      interviewerRules: [
-        'Не начинать с презентации идеи платформы.',
-        'Не задавать вопрос «нужен ли вам такой сервис?» в начале разговора.',
-        'Разбирать только реальные кейсы из опыта респондента.',
-        'Просить привести последний конкретный пример, а не рассуждать в целом.',
-        'После общего ответа уточнять: «как именно?», «что было дальше?», «почему?».',
-        'Фиксировать дословные формулировки респондента в проблемных местах.',
-        'Если аудиозапись невозможна, нужен подробный конспект.',
-      ],
-      followUpPrompts: [
-        'Как именно это происходило?',
-        'Что было дальше?',
-        'Почему вы сделали именно так?',
-        'Сколько времени это заняло?',
-        'Что было самым неудобным?',
-        'На каком этапе всё застопорилось?',
-      ],
-      questions: [
-        {
-          id: 'Q1', section: 'Контекст', stage: 'base', required: true,
-          question: 'Чем вы сейчас занимаетесь в научном плане? Над какими темами или проектами работаете?',
-          goal: 'Понять контекст респондента и наличие потенциальной междисциплинарности.',
-        },
-        {
-          id: 'Q2', section: 'Фильтр', stage: 'base', required: true, type: 'caseFilter',
-          question: 'Был ли у вас за последний год случай, когда для своей задачи вам понадобился специалист из другой области?',
-          goal: 'Проверить наличие релевантного опыта.',
-        },
-        {
-          id: 'Q2A', section: 'Фильтр', stage: 'fallback', required: false, type: 'olderCaseFilter',
-          question: 'Если за последний год такого случая не было — был ли вообще за последние несколько лет похожий кейс?',
-          goal: 'Попробовать вытащить более старый, но реальный кейс.',
-        },
-        {
-          id: 'Q3', section: 'Последний кейс', stage: 'case', required: true,
-          question: 'Расскажите про последний такой случай: какая была задача и почему вам понадобился человек из другой области?',
-          goal: 'Вытащить конкретный кейс.',
-        },
-        {
-          id: 'Q4', section: 'Поиск', stage: 'case', required: true,
-          question: 'Как именно вы искали такого специалиста? С чего начали?',
-          goal: 'Понять реальное поведение, а не абстрактные рассуждения.',
-        },
-        {
-          id: 'Q5', section: 'Инструменты', stage: 'case', required: true,
-          question: 'Какие инструменты, сайты, базы, знакомства или каналы вы использовали?',
-          goal: 'Выявить текущие альтернативы и обходные пути.',
-        },
-        {
-          id: 'Q6', section: 'Критерии выбора', stage: 'case', required: true,
-          question: 'Как вы понимали, что найденный человек действительно подходит под вашу задачу?',
-          goal: 'Понять, на чём строится доверие и верификация компетенций.',
-        },
-        {
-          id: 'Q7', section: 'Боль', stage: 'case', required: true,
-          question: 'Что в этом процессе было самым сложным или неудобным?',
-          goal: 'Выявить ключевую боль.',
-        },
-        {
-          id: 'Q8', section: 'Потери', stage: 'case', required: true,
-          question: 'Сколько времени это заняло? Было ли ощущение, что процесс идёт слишком медленно или случайно?',
-          goal: 'Оценить транзакционные издержки.',
-        },
-        {
-          id: 'Q9', section: 'Контакт', stage: 'case', required: true,
-          question: 'Когда вы нашли подходящего человека — как пытались выйти с ним на связь?',
-          goal: 'Проверить гипотезу про «последнюю милю».',
-        },
-        {
-          id: 'Q10', section: 'Контакт', stage: 'case', required: true,
-          question: 'Удалось ли установить контакт? Если нет — почему?',
-          goal: 'Понять, где ломается взаимодействие после поиска.',
-        },
-        {
-          id: 'Q11', section: 'Альтернативы', stage: 'case', required: true,
-          question: 'Если не удавалось найти подходящего человека — что делали дальше?',
-          goal: 'Понять альтернативные сценарии и потери.',
-        },
-        {
-          id: 'Q12', section: 'Проверка концепции', stage: 'concept', required: true,
-          question: 'Представьте сервис, куда можно текстом описать задачу и получить список специалистов с объяснением, почему каждый из них может подойти. В какой ситуации это было бы вам реально полезно?',
-          goal: 'Проверить применимость идеи после разбора реального опыта.',
-        },
-        {
-          id: 'Q13', section: 'Проверка концепции', stage: 'concept', required: true,
-          question: 'Что в таком сервисе должно быть обязательно, чтобы вы ему доверяли?',
-          goal: 'Понять критические требования к MVP.',
-        },
-      ],
+    const SURVEY_CONFIGS = {
+      s2s: {
+        key: 's2s',
+        label: 'Ученые ищут ученого',
+        icon: '🔬',
+        storageKey: 'prizma_custdev_s2s_v2',
+        project: 'ПРИЗМА',
+        objective: 'Понять, как исследователи сегодня находят специалистов из других областей, где именно ломается этот процесс и насколько ценным был бы сервис подбора и первичного соединения научных компетенций.',
+        interviewerRules: [
+          'Не начинать с презентации идеи платформы.',
+          'Не задавать вопрос «нужен ли вам такой сервис?» в начале разговора.',
+          'Разбирать только реальные кейсы из опыта респондента.',
+          'Просить привести последний конкретный пример, а не рассуждать в целом.',
+          'После общего ответа уточнять: «как именно?», «что было дальше?», «почему?».',
+          'Фиксировать дословные формулировки респондента в проблемных местах.',
+          'Если аудиозапись невозможна, нужен подробный конспект.',
+        ],
+        followUpPrompts: [
+          'Как именно это происходило?',
+          'Что было дальше?',
+          'Почему вы сделали именно так?',
+          'Сколько времени это заняло?',
+          'Что было самым неудобным?',
+          'На каком этапе всё застопорилось?',
+        ],
+        questions: [
+          { id: 'Q1', section: 'Контекст', stage: 'base', required: true,
+            question: 'Чем вы сейчас занимаетесь в научном плане? Над какими темами или проектами работаете?',
+            goal: 'Понять контекст респондента и наличие потенциальной междисциплинарности.' },
+          { id: 'Q2', section: 'Фильтр', stage: 'base', required: true, type: 'caseFilter',
+            question: 'Был ли у вас за последний год случай, когда для своей задачи вам понадобился специалист из другой области?',
+            goal: 'Проверить наличие релевантного опыта.' },
+          { id: 'Q2A', section: 'Фильтр', stage: 'fallback', required: false, type: 'olderCaseFilter',
+            question: 'Если за последний год такого случая не было — был ли вообще за последние несколько лет похожий кейс?',
+            goal: 'Попробовать вытащить более старый, но реальный кейс.' },
+          { id: 'Q3', section: 'Последний кейс', stage: 'case', required: true,
+            question: 'Расскажите про последний такой случай: какая была задача и почему вам понадобился человек из другой области?',
+            goal: 'Вытащить конкретный кейс.' },
+          { id: 'Q4', section: 'Поиск', stage: 'case', required: true,
+            question: 'Как именно вы искали такого специалиста? С чего начали?',
+            goal: 'Понять реальное поведение, а не абстрактные рассуждения.' },
+          { id: 'Q5', section: 'Инструменты', stage: 'case', required: true,
+            question: 'Какие инструменты, сайты, базы, знакомства или каналы вы использовали?',
+            goal: 'Выявить текущие альтернативы и обходные пути.' },
+          { id: 'Q6', section: 'Критерии выбора', stage: 'case', required: true,
+            question: 'Как вы понимали, что найденный человек действительно подходит под вашу задачу?',
+            goal: 'Понять, на чём строится доверие и верификация компетенций.' },
+          { id: 'Q7', section: 'Боль', stage: 'case', required: true,
+            question: 'Что в этом процессе было самым сложным или неудобным?',
+            goal: 'Выявить ключевую боль.' },
+          { id: 'Q8', section: 'Потери', stage: 'case', required: true,
+            question: 'Сколько времени это заняло? Было ли ощущение, что процесс идёт слишком медленно или случайно?',
+            goal: 'Оценить транзакционные издержки.' },
+          { id: 'Q9', section: 'Контакт', stage: 'case', required: true,
+            question: 'Когда вы нашли подходящего человека — как пытались выйти с ним на связь?',
+            goal: 'Проверить гипотезу про «последнюю милю».' },
+          { id: 'Q10', section: 'Контакт', stage: 'case', required: true,
+            question: 'Удалось ли установить контакт? Если нет — почему?',
+            goal: 'Понять, где ломается взаимодействие после поиска.' },
+          { id: 'Q11', section: 'Альтернативы', stage: 'case', required: true,
+            question: 'Если не удавалось найти подходящего человека — что делали дальше?',
+            goal: 'Понять альтернативные сценарии и потери.' },
+          { id: 'Q12', section: 'Проверка концепции', stage: 'concept', required: true,
+            question: 'Представьте сервис, куда можно текстом описать задачу и получить список специалистов с объяснением, почему каждый из них может подойти. В какой ситуации это было бы вам реально полезно?',
+            goal: 'Проверить применимость идеи после разбора реального опыта.' },
+          { id: 'Q13', section: 'Проверка концепции', stage: 'concept', required: true,
+            question: 'Что в таком сервисе должно быть обязательно, чтобы вы ему доверяли?',
+            goal: 'Понять критические требования к MVP.' },
+        ],
+        painTags: [
+          'Не знал, где искать',
+          'Не знал, кого именно искать',
+          'Не мог оценить релевантность',
+          'Не нашёл контакты',
+          'Не получил ответ',
+          'Было неловко писать',
+          'Всё решилось через связи',
+          'Поиск занял слишком много времени',
+          'Слишком случайный процесс',
+          'Ничего не сработало',
+        ],
+        breakpoints: [
+          'Поиск',
+          'Оценка релевантности',
+          'Поиск контактов',
+          'Первичное сообщение',
+          'Нет ответа',
+          'Не было мотивации продолжать',
+          'Всё решилось через личные связи',
+          'Явного сбоя не было',
+        ],
+        extraMetaFields: [],
+      },
+
+      b2s: {
+        key: 'b2s',
+        label: 'Бизнес ищет ученого',
+        icon: '🏢',
+        storageKey: 'prizma_custdev_b2s_v1',
+        project: 'ПРИЗМА',
+        objective: 'Понять, как R&D-директора, фаундеры наукоёмких стартапов и руководители производств ищут научную экспертизу, где ломается процесс и есть ли оплачиваемая потребность в сервисе подбора.',
+        interviewerRules: [
+          'Не презентовать сервис — исследовать их реальный опыт.',
+          'Спрашивать только о конкретных случаях из прошлого.',
+          'Если говорят «обычно» или «всегда» — просить конкретный пример.',
+          'Фиксировать суммы, сроки и должности — это метрики боли.',
+          'Не спрашивать «нужен ли вам такой сервис» напрямую.',
+          'Записывать дословные формулировки в проблемных местах.',
+          'Если аудиозапись невозможна, нужен подробный конспект.',
+        ],
+        followUpPrompts: [
+          'Сколько это стоило компании?',
+          'Кто принимал решение?',
+          'Как давно это было?',
+          'Что конкретно пошло не так?',
+          'Рассматривали ли другие варианты?',
+          'Что бы вы сделали иначе?',
+        ],
+        questions: [
+          { id: 'BQ1', section: 'Контекст', stage: 'base', required: true,
+            question: 'Расскажите о вашем бизнесе и вашей роли. Над какими продуктами или технологическими задачами вы сейчас работаете?',
+            goal: 'Понять масштаб компании, специфику задач и потребность во внешних НИОКР.' },
+          { id: 'BQ2', section: 'Фильтр', stage: 'base', required: true, type: 'caseFilter',
+            question: 'Был ли у вас за последний год-два случай, когда для решения бизнес-задачи или доработки продукта вам потребовалась глубокая научная экспертиза или конкретный учёный?',
+            goal: 'Жёсткий фильтр: есть ли реальный опыт поиска.' },
+          { id: 'BQ2A', section: 'Фильтр', stage: 'fallback', required: false, type: 'olderCaseFilter',
+            question: 'А за последние 3–5 лет? Может, при запуске нового продукта или при выходе на новый рынок возникала такая потребность?',
+            goal: 'Попробовать вытащить более старый, но реальный кейс.' },
+          { id: 'BQ3', section: 'Кейс', stage: 'case', required: true,
+            question: 'Расскажите про этот случай. Какая конкретно была проблема и почему вы не могли решить её силами своей команды?',
+            goal: 'Вытащить конкретный кейс и понять ценность внешней экспертизы.' },
+          { id: 'BQ4', section: 'Поиск', stage: 'case', required: true,
+            question: 'Как именно вы искали такого специалиста? Каким был самый первый шаг?',
+            goal: 'Понять реальное поведение: звонили в вуз, гуглили статьи, спрашивали знакомых?' },
+          { id: 'BQ5', section: 'Процесс', stage: 'case', required: true,
+            question: 'Как прошёл весь процесс поиска от начала до конца? Расскажите по шагам.',
+            goal: 'Открытый вопрос — пусть сами расскажут о сложностях без наводки.' },
+          { id: 'BQ6', section: 'Потери', stage: 'case', required: true,
+            question: 'Сколько времени занял весь процесс от осознания проблемы до начала работы с экспертом?',
+            goal: 'Оценить транзакционные издержки (время = деньги).' },
+          { id: 'BQ7', section: 'Контакт', stage: 'case', required: true,
+            question: 'Когда вы нашли потенциального кандидата — как выходили с ним на связь?',
+            goal: 'Проверить гипотезу про «последнюю милю» — найти ≠ договориться.' },
+          { id: 'BQ8', section: 'Условия', stage: 'case', required: true,
+            question: 'Как проходило обсуждение условий работы — NDA, оплата, сроки, KPI?',
+            goal: 'Выявить разность культур: бизнес vs академия.' },
+          { id: 'BQ9', section: 'Результат', stage: 'case', required: true,
+            question: 'Чем всё закончилось? Помог ли этот человек решить вашу бизнес-задачу?',
+            goal: 'Понять метрику успеха и частоту провалов.' },
+          { id: 'BQ10', section: 'Альтернативы', stage: 'case', required: true,
+            question: 'Пока искали учёного — какие альтернативные варианты рассматривали параллельно?',
+            goal: 'Понять конкурентное поле: НИИ, штатный найм, отказ от проекта.' },
+          { id: 'BQ11', section: 'Бюджет', stage: 'case', required: true,
+            question: 'Сколько в итоге стоило решение этой проблемы? Или сколько вы потеряли бы, не решив её?',
+            goal: 'Понять «бюджет боли» для будущего ценообразования.' },
+          { id: 'BQ12', section: 'Проверка концепции', stage: 'concept', required: true,
+            question: 'Если представить сервис, где вы описываете бизнес-задачу понятным вам языком, а вам подбирают учёных с подтверждённым трек-рекордом — в какой ситуации из вашего прошлого опыта вы бы за него заплатили?',
+            goal: 'Проверить применимость идеи, привязав к реальному прошлому.' },
+          { id: 'BQ13', section: 'Проверка концепции', stage: 'concept', required: true,
+            question: 'Что в таком сервисе должно быть обязательно, чтобы вы доверяли ему свои коммерческие задачи?',
+            goal: 'Выявить критические барьеры: NDA, верификация, конфиденциальность.' },
+        ],
+        painTags: [
+          'Не знал, где искать',
+          'Не знал, кого именно искать',
+          'Не смог оценить практичность эксперта',
+          'Не нашёл контакты',
+          'Не получил ответ',
+          'Бюрократия институтов / NDA / договоры',
+          'Разные ожидания по срокам',
+          'Учёный не понимал бизнес-задачу',
+          'Результат не внедрился',
+          'Всё решилось через связи',
+          'Поиск занял слишком много времени',
+          'Слишком случайный процесс',
+        ],
+        breakpoints: [
+          'Поиск',
+          'Оценка компетенций',
+          'Поиск контактов',
+          'Первичный контакт',
+          'Нет ответа',
+          'Согласование условий (NDA, KPI)',
+          'В процессе работы',
+          'Внедрение результатов',
+        ],
+        extraMetaFields: [
+          { key: 'companyName', label: 'Компания', placeholder: 'Название компании' },
+          { key: 'respondentRole', label: 'Должность', placeholder: 'CTO / R&D директор / Фаундер' },
+          { key: 'industry', label: 'Индустрия', placeholder: 'Фарма, IT, Производство...' },
+          { key: 'companySize', label: 'Размер компании', placeholder: 'Стартап / МСП / Корпорация' },
+        ],
+      },
     };
+
+    // Обратная совместимость: surveyData указывает на S2S по умолчанию
+    const surveyData = SURVEY_CONFIGS.s2s;
 
     // Вопросы по stage — создаём один раз
     const BASE_QUESTIONS     = surveyData.questions.filter(q => q.stage === 'base');
@@ -142,29 +244,7 @@
     const CONCEPT_QUESTIONS  = surveyData.questions.filter(q => q.stage === 'concept');
     const CASE_IDS           = new Set(CASE_QUESTIONS.map(q => q.id));
 
-    const PAIN_TAG_OPTIONS = [
-      'Не знал, где искать',
-      'Не знал, кого именно искать',
-      'Не мог оценить релевантность',
-      'Не нашёл контакты',
-      'Не получил ответ',
-      'Было неловко писать',
-      'Всё решилось через связи',
-      'Поиск занял слишком много времени',
-      'Слишком случайный процесс',
-      'Ничего не сработало',
-    ];
-
-    const BREAKPOINT_OPTIONS = [
-      'Поиск',
-      'Оценка релевантности',
-      'Поиск контактов',
-      'Первичное сообщение',
-      'Нет ответа',
-      'Не было мотивации продолжать',
-      'Всё решилось через личные связи',
-      'Явного сбоя не было',
-    ];
+    // PAIN_TAG_OPTIONS и BREAKPOINT_OPTIONS теперь внутри SURVEY_CONFIGS[track]
 
     const QUALITY_OPTIONS = ['Высокое качество', 'Среднее качество', 'Слабое качество'];
 
@@ -504,10 +584,19 @@
     // ─────────────────────────────────────────────
 
     function App() {
-      // Инициализация из localStorage
+      // Трек: s2s или b2s (хранится отдельно)
+      const [track, setTrack] = useState(() => {
+        try { return localStorage.getItem('prizma_custdev_track') || 's2s'; }
+        catch { return 's2s'; }
+      });
+      const [showTrackModal, setShowTrackModal] = useState(null); // null | 's2s' | 'b2s'
+
+      const config = SURVEY_CONFIGS[track];
+
+      // Инициализация из localStorage (по ключу трека)
       const [state, setStateRaw] = useState(() => {
         try {
-          const saved = localStorage.getItem(STORAGE_KEY);
+          const saved = localStorage.getItem(config.storageKey);
           return saved ? JSON.parse(saved) : defaultState;
         } catch {
           return defaultState;
@@ -520,27 +609,27 @@
       const [copyStatus, setCopyStatus] = useState('');
 
       // При первом рендере проверяем, были ли реально полезные сохраненные данные.
-      // Используем ленивую инициализацию для флага, чтобы показать баннер только 1 раз при загрузке.
       const [showSavedBanner, setShowSavedBanner] = useState(() => {
         try {
-          const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+          const saved = JSON.parse(localStorage.getItem(config.storageKey));
           return hasMeaningfulData(saved);
         } catch {
           return false;
         }
       });
 
-      // Автосохранение
+      // Автосохранение (по ключу трека)
       useEffect(() => {
         try {
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+          localStorage.setItem(config.storageKey, JSON.stringify(state));
+          localStorage.setItem('prizma_custdev_track', track);
           setSaveStatus('Сохранено локально');
           const timer = setTimeout(() => setSaveStatus('Автосохранение включено'), 1500);
           return () => clearTimeout(timer);
         } catch {
           setSaveStatus('Ошибка сохранения');
         }
-      }, [state]);
+      }, [state, track]);
 
       // Хелперы изменения стейта
       const updateMeta = (field, value) => {
@@ -562,18 +651,44 @@
         setShowSavedBanner(false);
       };
 
-      // Вычисление видимых вопросов (Memo)
+      // Переключение трека
+      const handleTrackSwitch = (newTrack) => {
+        if (newTrack === track) return;
+        if (hasMeaningfulData(state)) {
+          setShowTrackModal(newTrack);
+        } else {
+          doTrackSwitch(newTrack);
+        }
+      };
+      const doTrackSwitch = (newTrack) => {
+        setTrack(newTrack);
+        setShowTrackModal(null);
+        setShowSavedBanner(false);
+        // Загружаем данные нового трека из localStorage или сбрасываем
+        try {
+          const saved = localStorage.getItem(SURVEY_CONFIGS[newTrack].storageKey);
+          setStateRaw(saved ? JSON.parse(saved) : defaultState);
+          if (saved && hasMeaningfulData(JSON.parse(saved))) {
+            setShowSavedBanner(true);
+          }
+        } catch {
+          setStateRaw(defaultState);
+        }
+      };
+
+      // Вычисление видимых вопросов из текущего конфига (Memo)
       const needsFallbackQuestion = state.screening.caseLastYear === 'no';
       const caseExists = state.screening.caseLastYear === 'yes' || 
                          (state.screening.caseLastYear === 'no' && state.screening.olderCase === 'yes');
 
       const visibleQuestions = useMemo(() => {
-        const list = [...BASE_QUESTIONS];
-        if (needsFallbackQuestion) list.push(...FALLBACK_QUESTIONS);
-        if (caseExists)            list.push(...CASE_QUESTIONS);
-        list.push(...CONCEPT_QUESTIONS);
+        const qs = config.questions;
+        const list = qs.filter(q => q.stage === 'base');
+        if (needsFallbackQuestion) list.push(...qs.filter(q => q.stage === 'fallback'));
+        if (caseExists)            list.push(...qs.filter(q => q.stage === 'case'));
+        list.push(...qs.filter(q => q.stage === 'concept'));
         return list;
-      }, [needsFallbackQuestion, caseExists]);
+      }, [needsFallbackQuestion, caseExists, track]);
 
       const groupedQuestions = useMemo(() => ({
         interview: visibleQuestions.filter(q => q.stage !== 'concept'),
@@ -587,6 +702,8 @@
       const buildReportObject = () => {
         return {
           exportDate: new Date().toISOString(),
+          track: track,
+          trackLabel: config.label,
           meta: state.meta,
           screening: state.screening,
           answers: filterExportAnswers(state.answers, visibleQuestions),
@@ -597,6 +714,7 @@
 
       const buildReportText = () => {
         let txt = `=============================================\n`;
+        txt += `ТРЕК: ${config.label}\n`;
         txt += `ИНТЕРВЬЮ: ${state.meta.respondentCode || 'Не указан'} (${state.meta.date})\n`;
         txt += `=============================================\n\n`;
 
@@ -629,12 +747,12 @@
 
       const exportJSON = () => {
         const data = JSON.stringify(buildReportObject(), null, 2);
-        downloadFile(makeFilename(state.meta.respondentCode, state.meta.date, 'json'), data, 'application/json');
+        downloadFile(makeFilename(`${track}_${state.meta.respondentCode}`, state.meta.date, 'json'), data, 'application/json');
       };
 
       const exportTXT = () => {
         const data = buildReportText();
-        downloadFile(makeFilename(state.meta.respondentCode, state.meta.date, 'txt'), data, 'text/plain');
+        downloadFile(makeFilename(`${track}_${state.meta.respondentCode}`, state.meta.date, 'txt'), data, 'text/plain');
       };
 
       const copyTXT = async () => {
@@ -662,12 +780,12 @@
           <header className="sticky top-0 z-20 border-b border-slate-200 bg-white/95 backdrop-blur">
             <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8">
               <div className="flex items-center gap-3">
-                <div className="rounded-lg bg-blue-600 p-2 text-white">
+                <div className={`rounded-lg p-2 text-white ${track === 'b2s' ? 'bg-emerald-600' : 'bg-blue-600'}`}>
                   <IconFileText size={20} />
                 </div>
                 <div>
-                  <h1 className="text-lg font-bold leading-tight">{surveyData.project} CustDev Tool</h1>
-                  <p className="text-xs font-medium text-slate-500">{surveyData.researchTrack}</p>
+                  <h1 className="text-lg font-bold leading-tight">{config.project} CustDev Tool</h1>
+                  <p className="text-xs font-medium text-slate-500">{config.icon} {config.label}</p>
                 </div>
               </div>
 
@@ -707,7 +825,7 @@
                   <IconInfo size={18} className="text-blue-600" />
                   Цель исследования
                 </h3>
-                <p className="text-sm leading-relaxed text-slate-600">{surveyData.objective}</p>
+                <p className="text-sm leading-relaxed text-slate-600">{config.objective}</p>
               </Card>
 
 
@@ -718,7 +836,7 @@
                   Правила интервьюера
                 </h3>
                 <ul className="space-y-2 text-sm text-slate-600">
-                  {surveyData.interviewerRules.map((rule, idx) => (
+                  {config.interviewerRules.map((rule, idx) => (
                     <li key={idx} className="flex items-start gap-2">
                       <span className="mt-1 text-red-400">•</span>
                       <span>{rule}</span>
@@ -733,7 +851,7 @@
                   Как копать глубже
                 </h3>
                 <ul className="space-y-2 text-sm text-slate-600">
-                  {surveyData.followUpPrompts.map((item, idx) => (
+                  {config.followUpPrompts.map((item, idx) => (
                     <li key={idx} className="rounded-lg bg-slate-50 px-3 py-2">
                       {item}
                     </li>
@@ -763,6 +881,27 @@
                   <h2 className="text-xl font-bold">Организация интервью</h2>
                 </div>
                 <Card>
+                  {/* Переключатель треков */}
+                  <div className="mb-6 pb-6 border-b border-slate-100">
+                    <label className="mb-2 block text-sm font-medium text-slate-800">Трек исследования</label>
+                    <div className="flex gap-2">
+                      {Object.values(SURVEY_CONFIGS).map(cfg => (
+                        <button
+                          key={cfg.key}
+                          type="button"
+                          onClick={() => handleTrackSwitch(cfg.key)}
+                          className={`flex-1 rounded-lg border px-4 py-2.5 text-sm font-medium transition ${
+                            track === cfg.key
+                              ? (cfg.key === 'b2s' ? 'border-emerald-600 bg-emerald-600 text-white' : 'border-blue-600 bg-blue-600 text-white')
+                              : 'border-slate-300 bg-white text-slate-700 hover:border-slate-400'
+                          }`}
+                        >
+                          {cfg.icon} {cfg.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
                   <div className="grid gap-6 sm:grid-cols-2">
                     <InputField
                       label="Код респондента *"
@@ -782,6 +921,16 @@
                       value={state.meta.date}
                       onChange={v => updateMeta('date', v)}
                     />
+                    {/* Доп. поля для B2S */}
+                    {config.extraMetaFields.map(f => (
+                      <InputField
+                        key={f.key}
+                        label={f.label}
+                        value={state.meta[f.key] || ''}
+                        onChange={v => updateMeta(f.key, v)}
+                        placeholder={f.placeholder}
+                      />
+                    ))}
                   </div>
                   <div className="mt-6 flex flex-col gap-3 pt-6 border-t border-slate-100">
                     <label className="flex items-center gap-3 cursor-pointer">
@@ -931,7 +1080,7 @@
                     <div>
                       <label className="mb-3 block text-sm font-medium text-slate-800">Где ломается процесс? *</label>
                       <div className="flex flex-wrap gap-2">
-                        {BREAKPOINT_OPTIONS.map(b => (
+                        {config.breakpoints.map(b => (
                           <ToggleButton key={b} value={b} active={state.summary.breakpoint === b} onClick={v => updateSummary('breakpoint', v === state.summary.breakpoint ? '' : v)} activeClass="border-blue-600 bg-blue-600 text-white">
                             {b}
                           </ToggleButton>
@@ -954,7 +1103,7 @@
                   <div>
                     <label className="mb-3 block text-sm font-medium text-slate-800">Теги болей (можно несколько)</label>
                     <div className="flex flex-wrap gap-2">
-                      {PAIN_TAG_OPTIONS.map(tag => (
+                      {config.painTags.map(tag => (
                         <ToggleButton
                           key={tag}
                           value={tag}
@@ -1003,6 +1152,16 @@
             confirmLabel="Да, очистить"
             onConfirm={handleResetForm}
             onCancel={() => setShowResetModal(false)}
+          />
+
+          <ConfirmModal
+            isOpen={showTrackModal !== null}
+            title="Сменить трек?"
+            message={`Текущие данные будут сохранены. Вы переключитесь на трек «${showTrackModal ? SURVEY_CONFIGS[showTrackModal].label : ''}».`}
+            confirmLabel="Да, переключить"
+            confirmColor="blue"
+            onConfirm={() => doTrackSwitch(showTrackModal)}
+            onCancel={() => setShowTrackModal(null)}
           />
 
         </div>
